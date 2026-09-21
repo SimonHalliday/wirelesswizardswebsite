@@ -381,70 +381,131 @@ nav a:hover { color: var(--text-bright); background: rgba(232,160,32,.06); }
   position: relative;
 }
 
-.signal-diagram {
-  width: 100%;
-  aspect-ratio: 1;
-  background: var(--bg-card);
+/* ── ON LOCATION STRIP ── */
+.gallery-strip[hidden] { display: none !important; }
+
+.strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--border);
   border: 1px solid var(--border);
   border-radius: 3px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
   overflow: hidden;
 }
 
-.signal-rings {
+.strip-tile {
   position: relative;
-  width: 180px;
-  height: 180px;
+  aspect-ratio: 3 / 2;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--bg-card);
 }
-
-.ring {
+.strip-tile img {
   position: absolute;
-  border-radius: 50%;
-  border: 1px solid rgba(232,160,32,.2);
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  animation: pulse-ring 3s ease-in-out infinite;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1.2s ease;
 }
-.ring:nth-child(1) { width: 60px; height: 60px; animation-delay: 0s; border-color: rgba(232,160,32,.6); }
-.ring:nth-child(2) { width: 100px; height: 100px; animation-delay: .4s; border-color: rgba(232,160,32,.4); }
-.ring:nth-child(3) { width: 140px; height: 140px; animation-delay: .8s; }
-.ring:nth-child(4) { width: 180px; height: 180px; animation-delay: 1.2s; border-color: rgba(232,160,32,.1); }
+.strip-tile img.is-front { opacity: 1; }
 
-@keyframes pulse-ring {
-  0%, 100% { opacity: .4; }
-  50% { opacity: 1; }
+/* fewer than four photos: don't leave empty columns */
+.strip[data-n="1"] { grid-template-columns: minmax(0, 1fr); }
+.strip[data-n="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.strip[data-n="3"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.strip[data-n="1"] .strip-tile { aspect-ratio: 16 / 9; }
+
+@media (max-width: 1000px) {
+  .strip, .strip[data-n="3"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .strip[data-n="1"] { grid-template-columns: minmax(0, 1fr); }
 }
-
-.ring-center {
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: 24px; height: 24px;
-  background: var(--accent);
-  border-radius: 50%;
-  box-shadow: 0 0 20px var(--accent), 0 0 40px rgba(232,160,32,.4);
-  animation: pulse-dot 2s ease-in-out infinite;
+@media (max-width: 520px) {
+  .strip-tile { aspect-ratio: 4 / 3; }
+  .strip[data-n="1"] .strip-tile { aspect-ratio: 16 / 9; }
 }
-
-@keyframes pulse-dot {
-  0%, 100% { box-shadow: 0 0 12px var(--accent); }
-  50% { box-shadow: 0 0 28px var(--accent), 0 0 48px rgba(232,160,32,.5); }
+@media (prefers-reduced-motion: reduce) {
+  .strip-tile img { transition: none; }
 }
 
-.diagram-label {
-  position: absolute;
+/* ── RF MONITOR (Who We Are) ── */
+.rf-monitor {
+  /* reads as an instrument screen in both themes */
+  --rf-bg:     #070a10;
+  --rf-panel:  #0b0f18;
+  --rf-line:   #1b2740;
+  --rf-text:   #7f93b3;
+  --rf-bright: #dce8f6;
+  --rf-accent: #e8a020;
+  --rf-green:  #1dde5a;
+  width: 100%;
+  aspect-ratio: 1;
+  min-height: 360px;
+  background: var(--rf-bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   font-family: var(--font-mono);
-  font-size: 0.74rem;
-  color: var(--text-dim);
-  letter-spacing: .08em;
+  color: var(--rf-text);
+  box-shadow: inset 0 0 60px rgba(0,0,0,.55);
 }
-.diagram-label.tl { top: 1rem; left: 1rem; }
-.diagram-label.tr { top: 1rem; right: 1rem; text-align: right; }
-.diagram-label.bl { bottom: 1rem; left: 1rem; }
-.diagram-label.br { bottom: 1rem; right: 1rem; text-align: right; }
+
+.rf-head {
+  display: flex; align-items: center; justify-content: space-between; gap: .75rem;
+  padding: .55rem .8rem;
+  border-bottom: 1px solid var(--rf-line);
+  background: var(--rf-panel);
+  font-size: .66rem; letter-spacing: .14em; text-transform: uppercase;
+}
+.rf-head .rf-id { color: var(--rf-bright); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rf-lock { display: inline-flex; align-items: center; gap: .4rem; color: var(--rf-green); white-space: nowrap; }
+.rf-led { width: 7px; height: 7px; border-radius: 50%; background: var(--rf-green);
+  box-shadow: 0 0 8px var(--rf-green); animation: rf-blink 2.4s ease-in-out infinite; }
+.rf-lock.is-acq { color: var(--rf-accent); }
+.rf-lock.is-acq .rf-led { background: var(--rf-accent); box-shadow: 0 0 8px var(--rf-accent); }
+@keyframes rf-blink { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+
+.rf-readouts {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-bottom: 1px solid var(--rf-line);
+  background: var(--rf-panel);
+}
+.rf-readouts .rf-cell { padding: .6rem .8rem; border-right: 1px solid var(--rf-line); min-width: 0; }
+.rf-readouts .rf-cell:last-child { border-right: 0; }
+.rf-k { font-size: .58rem; letter-spacing: .16em; opacity: .75; }
+.rf-v { font-size: 1.05rem; color: var(--rf-bright); margin-top: .15rem;
+  white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rf-v.is-accent { color: var(--rf-accent); }
+.rf-u { font-size: .62rem; color: var(--rf-text); margin-left: .25rem; }
+
+.rf-screen { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+.rf-pane { position: relative; min-height: 0; }
+.rf-pane.rf-spec { flex: 1.15 1 0; border-bottom: 1px solid var(--rf-line); }
+.rf-pane.rf-fall { flex: 1 1 0; }
+.rf-pane canvas { display: block; width: 100%; height: 100%; }
+.rf-tag { position: absolute; top: .35rem; left: .55rem;
+  font-size: .55rem; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--rf-text); opacity: .7; pointer-events: none; }
+.rf-tag.rf-right { left: auto; right: .55rem; }
+
+.rf-foot {
+  display: flex; align-items: center; justify-content: space-between; gap: .6rem;
+  padding: .5rem .8rem; border-top: 1px solid var(--rf-line); background: var(--rf-panel);
+  font-size: .58rem; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap;
+}
+.rf-foot .rf-ok { color: var(--rf-green); }
+
+@media (max-width: 560px) {
+  .rf-monitor { aspect-ratio: auto; height: 400px; }
+  .rf-spec .rf-tag { display: none; }
+  .rf-head, .rf-foot { font-size: .55rem; letter-spacing: .1em; }
+  .rf-v { font-size: .95rem; }
+  .rf-foot .rf-foot-mid { display: none; }
+}
 
 .about-kv { display: flex; flex-direction: column; gap: 1.5rem; margin-top: 2rem; }
 .kv-row {
@@ -1193,21 +1254,73 @@ body { overflow-x: clip; }
       </div>
 
       <div class="about-visual">
-        <div class="signal-diagram">
-          <span class="diagram-label tl" id="freq-label">FREQ: <span style="color:var(--accent)">—</span></span>
-          <span class="diagram-label tr">LINK: <span style="color:var(--green)" id="link-state">LOCK</span></span>
-          <span class="diagram-label bl">SNR: <span style="color:var(--accent)" id="snr-val">—</span></span>
-          <span class="diagram-label br">BER: <span style="color:var(--green)">1E-9</span></span>
-          <div class="signal-rings">
-            <div class="ring"></div>
-            <div class="ring"></div>
-            <div class="ring"></div>
-            <div class="ring"></div>
-            <div class="ring-center"></div>
+        <div class="rf-monitor" id="rf-monitor">
+          <div class="rf-head">
+            <span class="rf-id">WW-RX &middot; Diversity Receiver</span>
+            <span class="rf-lock" id="rf-lock"><span class="rf-led"></span><span id="rf-lock-txt">Locked</span></span>
+          </div>
+          <div class="rf-readouts">
+            <div class="rf-cell">
+              <div class="rf-k">FREQ</div>
+              <div class="rf-v is-accent" id="rf-freq">2245.00<span class="rf-u">MHz</span></div>
+            </div>
+            <div class="rf-cell">
+              <div class="rf-k">RSSI</div>
+              <div class="rf-v" id="rf-rssi">-42.0<span class="rf-u">dBm</span></div>
+            </div>
+            <div class="rf-cell">
+              <div class="rf-k">SNR</div>
+              <div class="rf-v" id="rf-snr">30.4<span class="rf-u">dB</span></div>
+            </div>
+          </div>
+          <div class="rf-screen">
+            <div class="rf-pane rf-spec">
+              <canvas id="rf-spectrum" aria-hidden="true"></canvas>
+              <span class="rf-tag">Spectrum &middot; 20 MHz span</span>
+              <span class="rf-tag rf-right">RBW 30 kHz</span>
+            </div>
+            <div class="rf-pane rf-fall">
+              <canvas id="rf-waterfall" aria-hidden="true"></canvas>
+              <span class="rf-tag">Waterfall</span>
+            </div>
+          </div>
+          <div class="rf-foot">
+            <span>COFDM &middot; 8 MHz &middot; 16-QAM</span>
+            <span class="rf-foot-mid">FEC 1/2 &middot; GI 1/16</span>
+            <span>BER <span class="rf-ok">&lt;1E-9</span></span>
           </div>
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ON LOCATION -->
+<div id="on-location" class="gallery-strip" hidden>
+  <div class="section">
+    <div class="section-header">
+      <div class="section-eyebrow">On Location</div>
+      <h2 class="section-title">In The Field</h2>
+      <p class="section-desc">Rigs, masts and racks from recent productions.</p>
+    </div>
+    <div class="strip" id="strip"></div>
+    <!-- ── PHOTO LIST ───────────────────────────────────────────────────────
+         Upload the photo to the repository, then add a line below.
+         "src" is the filename, "alt" describes the picture for screen readers.
+         The whole section stays hidden while this list is empty.
+
+         Example:
+         [
+           {"src":"rig-mast-iom.jpg","alt":"Antenna mast above the TT course"},
+           {"src":"rig-heli-tx.jpg","alt":"Transmitter mounted to a helicopter skid"}
+         ]
+    ─────────────────────────────────────────────────────────────────────── -->
+    <script type="application/json" id="strip-data">[
+      {"src": "rf-cart.jpg", "alt": "Wireless Wizards RF cart on location \u2014 receiver racks, monitors and flight cases in an equipment tent"},
+      {"src": "studio-feeds.jpg", "alt": "Multiviewer screens showing colour bars from four studios, above a rack of RF receivers in a flight case"},
+      {"src": "camera-tx-mesh.jpg", "alt": "Transmitter block mounted on a camera rig, labelled VIDEO and MESH, with a whip antenna above"},
+      {"src": "hilltop-link.jpg", "alt": "Engineer on a scaffold tower aligning a link antenna, with a coastline and farmland below"}
+    ]</script>
   </div>
 </div>
 
@@ -1282,6 +1395,7 @@ body { overflow-x: clip; }
       </div>
       <div class="poster-card">
         <div class="poster-img-wrap broadcast-poster" style="--bc1:#141d2b;--bc2:#4f7fa8;--bc3:#06090e;">
+          <img src="jack-ryan-ghost-war.jpg" alt="Tom Clancy's Jack Ryan: Ghost War" loading="lazy" class="poster-art" onerror="this.remove()">
           <div class="bp-icon" style="font-size:2.5rem;">&#128373;&#65039;</div>
           <div class="bp-title">JACK RYAN<br>GHOST WAR</div>
           <div class="bp-sub">2026</div>
@@ -1711,26 +1825,323 @@ function toggleTheme() {
   try { localStorage.setItem('ww_theme', next); } catch(e) {}
 }
 (function() {
-  const t = localStorage.getItem('ww_theme') || 'dark';
-  if (t === 'light') {
-    document.documentElement.setAttribute('data-theme', 'light');
-    document.getElementById('theme-btn').textContent = '☀️';
-  }
+  var t = 'dark';
+  try { t = localStorage.getItem('ww_theme') || 'dark'; } catch (e) {}
+  document.documentElement.setAttribute('data-theme', t);
+  var btn = document.getElementById('theme-btn');
+  if (btn) btn.textContent = t === 'light' ? '☀️' : '🌙';
 })();
 
-// Fake live signal readout
-const freqs = ['2205 MHz','2225 MHz','2245 MHz','2265 MHz','2285 MHz'];
-const snrs  = ['28.4 dB','31.2 dB','29.7 dB','33.1 dB','27.9 dB'];
-let fi = 0, si = 0;
-function updateDiagram() {
-  const fl = document.getElementById('freq-label');
-  const sv = document.getElementById('snr-val');
-  if (fl) fl.innerHTML = 'FREQ: <span style="color:var(--accent)">' + freqs[fi % freqs.length] + '</span>';
-  if (sv) sv.textContent = snrs[si % snrs.length];
-  fi++; si++;
-}
-updateDiagram();
-setInterval(updateDiagram, 2800);
+// ── On Location: staggered cross-fading photo strip ──
+(function () {
+  var sect = document.getElementById('on-location');
+  var host = document.getElementById('strip');
+  var data = document.getElementById('strip-data');
+  if (!sect || !host || !data) return;
+
+  var photos = [];
+  try { photos = JSON.parse(data.textContent) || []; } catch (e) { photos = []; }
+  photos = photos.filter(function (p) { return p && p.src; });
+  if (!photos.length) return;               // nothing to show — section stays hidden
+
+  var COUNT = Math.min(4, photos.length);
+  var STEP = 2400;                          // ms between one tile changing and the next
+  var tiles = [], assigned = [], cursor = COUNT, turn = 0;
+
+  for (var i = 0; i < COUNT; i++) {
+    var t = document.createElement('div');
+    t.className = 'strip-tile';
+    var a = document.createElement('img');
+    var b = document.createElement('img');
+    a.loading = 'lazy'; b.loading = 'lazy';
+    a.decoding = 'async'; b.decoding = 'async';
+    a.src = photos[i].src;
+    a.alt = photos[i].alt || '';
+    a.className = 'is-front';
+    b.alt = '';
+    t.appendChild(a); t.appendChild(b);
+    host.appendChild(t);
+    tiles.push({ layers: [a, b], front: 0 });
+    assigned.push(i);
+  }
+
+  host.setAttribute('data-n', COUNT);
+  sect.hidden = false;
+
+  if (photos.length <= COUNT) return;       // every photo already on screen; nothing to rotate
+
+  function nextIndex() {
+    for (var n = 0; n < photos.length; n++) {
+      var idx = cursor % photos.length;
+      cursor++;
+      if (assigned.indexOf(idx) === -1) return idx;
+    }
+    return cursor++ % photos.length;
+  }
+
+  function swap(i) {
+    var t = tiles[i];
+    var idx = nextIndex();
+    var p = photos[idx];
+    var pre = new Image();
+    pre.onload = function () {
+      var back = t.layers[1 - t.front], front = t.layers[t.front];
+      back.src = p.src;
+      back.alt = p.alt || '';
+      back.classList.add('is-front');
+      front.classList.remove('is-front');
+      front.alt = '';
+      t.front = 1 - t.front;
+      assigned[i] = idx;
+    };
+    pre.onerror = function () { assigned[i] = assigned[i]; };   // bad file: leave the tile alone
+    pre.src = p.src;
+  }
+
+  var timer = 0;
+  function start() {
+    if (timer) return;
+    timer = setInterval(function () { swap(turn++ % COUNT); }, STEP);
+  }
+  function stop() { if (timer) { clearInterval(timer); timer = 0; } }
+
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (es) {
+      es[0].isIntersecting ? start() : stop();
+    }, { threshold: 0.1 }).observe(sect);
+  } else {
+    start();
+  }
+  document.addEventListener('visibilitychange', function () {
+    document.hidden ? stop() : (sect.getBoundingClientRect().bottom > 0 && start());
+  });
+})();
+
+// ── Who We Are: simulated COFDM receiver (spectrum + waterfall) ──
+(function () {
+  var root = document.getElementById('rf-monitor');
+  if (!root) return;
+  var cS = document.getElementById('rf-spectrum');
+  var cW = document.getElementById('rf-waterfall');
+  if (!cS || !cW || !cS.getContext) return;
+  var gS = cS.getContext('2d'), gW = cW.getContext('2d');
+  var elFreq = document.getElementById('rf-freq');
+  var elRssi = document.getElementById('rf-rssi');
+  var elSnr  = document.getElementById('rf-snr');
+  var elLock = document.getElementById('rf-lock');
+  var elLockT = document.getElementById('rf-lock-txt');
+
+  var SPAN = 20, BW = 8, TOP = -30, BOT = -105, FLOOR = -99, BINS = 256;
+  var trace = new Float32Array(BINS), peak = new Float32Array(BINS);
+  for (var i = 0; i < BINS; i++) { trace[i] = BOT; peak[i] = BOT; }
+
+  var CH = [2205, 2225, 2245, 2265, 2285];
+  var ci = 2, rssi = -42, snr = 30.4, acq = 0, tick = 0, nextTune = 130;
+
+  function dpr() { return Math.min(window.devicePixelRatio || 1, 2); }
+  function fit(c) {
+    var r = c.getBoundingClientRect(), d = dpr();
+    var w = Math.max(1, Math.round(r.width * d)), h = Math.max(1, Math.round(r.height * d));
+    if (c.width !== w || c.height !== h) { c.width = w; c.height = h; return true; }
+    return false;
+  }
+  function yFor(v, h) { return h * (TOP - v) / (TOP - BOT); }
+
+  function clearFall() {
+    gW.fillStyle = '#060a12';
+    gW.fillRect(0, 0, cW.width, cW.height);
+  }
+
+  // COFDM: flat noisy haystack, steep skirts, shoulders, then noise floor
+  function sample() {
+    var half = BW / 2;
+    for (var i = 0; i < BINS; i++) {
+      var off = (i / (BINS - 1) - 0.5) * SPAN;
+      var a = off < 0 ? -off : off;
+      var noise = FLOOR + Math.random() * 5;
+      var v;
+      if (acq > 0) v = noise;
+      else if (a < half - 0.2) v = rssi + (Math.random() - 0.5) * 2.4;
+      else if (a < half + 0.3) v = rssi - ((a - (half - 0.2)) / 0.5) * 40 + (Math.random() - 0.5) * 3;
+      else v = rssi - 40 - Math.max(0, a - (half + 1.4)) * 13;
+      if (v < noise) v = noise;
+      trace[i] = trace[i] * 0.42 + v * 0.58;
+      peak[i] = Math.max(peak[i] - 0.4, trace[i]);
+    }
+  }
+
+  function drawSpec() {
+    var w = cS.width, h = cS.height, d = dpr(), i;
+    gS.fillStyle = '#070a10';
+    gS.fillRect(0, 0, w, h);
+
+    gS.lineWidth = 1;
+    gS.strokeStyle = 'rgba(27,39,64,.95)';
+    gS.font = (9 * d) + 'px "Share Tech Mono", monospace';
+    gS.fillStyle = 'rgba(127,147,179,.5)';
+    gS.textBaseline = 'top';
+    for (var v = TOP; v >= BOT; v -= 15) {
+      var yy = Math.round(yFor(v, h)) + 0.5;
+      gS.beginPath(); gS.moveTo(0, yy); gS.lineTo(w, yy); gS.stroke();
+      if (v !== TOP) gS.fillText(v + '', 3 * d, yy + 2 * d);
+    }
+    for (var k = 1; k < 4; k++) {
+      var xx = Math.round(w * k / 4) + 0.5;
+      gS.beginPath(); gS.moveTo(xx, 0); gS.lineTo(xx, h); gS.stroke();
+    }
+
+    // frequency axis
+    gS.textBaseline = 'bottom';
+    gS.textAlign = 'center';
+    gS.fillStyle = 'rgba(127,147,179,.5)';
+    gS.fillText('-' + (SPAN / 4) + ' MHz', w * 0.25, h - 3 * d);
+    gS.fillText('+' + (SPAN / 4) + ' MHz', w * 0.75, h - 3 * d);
+    gS.fillStyle = 'rgba(232,160,32,.7)';
+    gS.fillText(CH[ci].toFixed(2), w * 0.5, h - 3 * d);
+    gS.textAlign = 'left';
+    gS.textBaseline = 'top';
+
+    // occupied channel mask
+    var x0 = w * (0.5 - (BW / 2) / SPAN), x1 = w * (0.5 + (BW / 2) / SPAN);
+    gS.fillStyle = 'rgba(232,160,32,.05)';
+    gS.fillRect(x0, 0, x1 - x0, h);
+    gS.strokeStyle = 'rgba(232,160,32,.22)';
+    gS.beginPath();
+    gS.moveTo(Math.round(x0) + 0.5, 0); gS.lineTo(Math.round(x0) + 0.5, h);
+    gS.moveTo(Math.round(x1) + 0.5, 0); gS.lineTo(Math.round(x1) + 0.5, h);
+    gS.stroke();
+
+    // peak hold
+    gS.strokeStyle = 'rgba(232,160,32,.3)';
+    gS.lineWidth = 1 * d;
+    gS.beginPath();
+    for (i = 0; i < BINS; i++) {
+      var px = i / (BINS - 1) * w, py = yFor(peak[i], h);
+      if (i) gS.lineTo(px, py); else gS.moveTo(px, py);
+    }
+    gS.stroke();
+
+    // live trace, filled
+    var grad = gS.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, 'rgba(232,160,32,.32)');
+    grad.addColorStop(1, 'rgba(232,160,32,0)');
+    gS.beginPath();
+    gS.moveTo(0, h);
+    for (i = 0; i < BINS; i++) gS.lineTo(i / (BINS - 1) * w, yFor(trace[i], h));
+    gS.lineTo(w, h);
+    gS.closePath();
+    gS.fillStyle = grad;
+    gS.fill();
+
+    gS.beginPath();
+    for (i = 0; i < BINS; i++) {
+      var qx = i / (BINS - 1) * w, qy = yFor(trace[i], h);
+      if (i) gS.lineTo(qx, qy); else gS.moveTo(qx, qy);
+    }
+    gS.strokeStyle = '#f0b544';
+    gS.lineWidth = 1.4 * d;
+    gS.stroke();
+  }
+
+  var STOPS = [[6,10,18],[14,42,85],[18,99,155],[232,160,32],[255,240,207]];
+  function wfColor(t) {
+    if (t < 0) t = 0; if (t > 1) t = 1;
+    var p = t * (STOPS.length - 1), i = Math.floor(p), f = p - i;
+    if (i >= STOPS.length - 1) return 'rgb(255,240,207)';
+    var a = STOPS[i], b = STOPS[i + 1];
+    return 'rgb(' + Math.round(a[0] + (b[0] - a[0]) * f) + ',' +
+                    Math.round(a[1] + (b[1] - a[1]) * f) + ',' +
+                    Math.round(a[2] + (b[2] - a[2]) * f) + ')';
+  }
+
+  function drawFall() {
+    var w = cW.width, h = cW.height, rh = Math.max(1, Math.round(dpr()));
+    gW.drawImage(cW, 0, 0, w, h, 0, rh, w, h);
+    var bw = w / BINS, span = 72;   /* fixed scale so fades show as banding */
+    for (var i = 0; i < BINS; i++) {
+      gW.fillStyle = wfColor((trace[i] - FLOOR) / span);
+      gW.fillRect(Math.floor(i * bw), 0, Math.ceil(bw) + 1, rh);
+    }
+  }
+
+  function readouts() {
+    if (elFreq) elFreq.innerHTML = CH[ci].toFixed(2) + '<span class="rf-u">MHz</span>';
+    if (elRssi) elRssi.innerHTML = (acq > 0 ? '--.-' : rssi.toFixed(1)) + '<span class="rf-u">dBm</span>';
+    if (elSnr) elSnr.innerHTML = (acq > 0 ? '--.-' : snr.toFixed(1)) + '<span class="rf-u">dB</span>';
+  }
+
+  function frame() {
+    tick++;
+    if (fit(cS)) { /* spectrum redraws fully anyway */ }
+    if (fit(cW)) clearFall();
+
+    if (acq > 0) {
+      acq--;
+      if (acq === 0) {
+        if (elLock) elLock.classList.remove('is-acq');
+        if (elLockT) elLockT.textContent = 'Locked';
+      }
+    } else if (--nextTune <= 0) {
+      ci = (ci + 1 + Math.floor(Math.random() * (CH.length - 1))) % CH.length;
+      acq = 7;
+      nextTune = 130 + Math.floor(Math.random() * 90);
+      if (elLock) elLock.classList.add('is-acq');
+      if (elLockT) elLockT.textContent = 'Acq';
+      for (var i = 0; i < BINS; i++) peak[i] = BOT;
+    }
+
+    rssi += (Math.random() - 0.5) * 0.6;
+    if (rssi < -52) rssi = -52;
+    if (rssi > -37) rssi = -37;
+    snr = 30 + (rssi + 42) * 0.55 + (Math.random() - 0.5) * 0.6;
+
+    sample();
+    drawSpec();
+    drawFall();
+    if (tick % 4 === 0) readouts();
+  }
+
+  var running = false, raf = 0, last = 0, acc = 0;
+  function loop(ts) {
+    if (!running) return;
+    if (!last) last = ts;
+    acc += ts - last;
+    last = ts;
+    if (acc >= 70) { acc = 0; frame(); }
+    raf = requestAnimationFrame(loop);
+  }
+  function start() {
+    if (running) return;
+    running = true; last = 0; acc = 0;
+    raf = requestAnimationFrame(loop);
+  }
+  function stop() { running = false; last = 0; if (raf) cancelAnimationFrame(raf); raf = 0; }
+
+  fit(cS); fit(cW); clearFall();
+  for (var s0 = 0; s0 < 260; s0++) {
+    rssi += (Math.random() - 0.5) * 0.9;
+    if (rssi < -50) rssi = -50;
+    if (rssi > -38) rssi = -38;
+    sample(); drawFall();
+  }
+  drawSpec(); readouts();
+
+  var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!still) {
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (es) {
+        es[0].isIntersecting ? start() : stop();
+      }, { threshold: 0.05 }).observe(root);
+    } else {
+      start();
+    }
+    document.addEventListener('visibilitychange', function () {
+      document.hidden ? stop() : (root.getBoundingClientRect().bottom > 0 && start());
+    });
+  }
+})();
 
 // Form submit
 // Show the confirmation banner when FormSubmit redirects back with ?sent=1
